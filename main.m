@@ -43,3 +43,7 @@ Zk_mean = 0;
 Zk = Zk_variance.*randn(1,N) + Zk_mean;
 
 Yk = Vk + Zk;
+
+% parametric identification
+c = (U*U.')^-1*U*Yk.';
+o = (U*U.')^-1*U*Wk.';
