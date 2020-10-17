@@ -2,18 +2,20 @@
 clear all;
 close all;
 
-N = 10000; % Number of samples
+N = 1000; % Number of samples
 U = rand(1,N); % Random input - u[0, 1]
 K_vec = [1, 2, 3, 4, 5]; % Vector of multipliers of base function
                          % Must be size [1 x K] because of dot product
                          % in nonlinear function
+
+K_vec = [1, 2, 3]; % mniejszy przypadek zeby zobaczyc czy dziala
 
 K = length(K_vec); % Number of Base functions
 
 Wk = fnlin(U, K_vec); % Calculating Wk Vector
 
 % ---<<< Impulse response (Gamma's)
-S = 11;                 % Amount of Gamma's
+S = 6;                 % Amount of Gamma's
 numerator = 1;          %   1
 denumerator = [1, 10];  % s + 10
 h = tf(numerator, denumerator);
@@ -42,7 +44,8 @@ Zk_variance = 0.1;
 Zk_mean = 0;
 Zk = Zk_variance.*randn(1,N) + Zk_mean;
 
-Yk = Vk + Zk;
+%Yk = Vk + Zk;
+Yk = Vk; % idealny przypadek bez zaklocenia
 
 % parametric identification
 Phi = [];
@@ -56,14 +59,18 @@ for i = 1:N
         end
         phi=[phi, h.'];
     end
-   Phi = [Phi, phi.'];
+   Phi = [Phi; phi]; % bo rozmiar ma byc N x t*(s-1)
 end
-teta = (Phi*Phi.')^-1*Phi*Yk.';
-M = reshape(teta, [K, S]);
-[U, S, V] = svd(M);
-GammaV.';
-K_vec;
-p1=U(:,1);
-q1=V(1,:);
-constK = p1./K_vec.'
-constG = q1./GammaV.'
+Teta = (Phi'*Phi)^-1*Phi'*Yk.';
+M = reshape(Teta, [K, S]);
+[P, D, Q] = svd(M);
+K_hat = P(:,1);
+sigma1 = D(1);
+G_hat = Q(:,1); % bo svd matlaba zwraca PDQ'
+
+% ratio
+(GammaV(2:end)./GammaV(1:end-1))'
+(G_hat(2:end)./G_hat(1:end-1))'
+
+K_vec(2:end)./K_vec(1:end-1)
+(K_hat(2:end)./K_hat(1:end-1))'
