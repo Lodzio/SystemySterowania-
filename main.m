@@ -2,7 +2,7 @@
 clear all;
 close all;
 
-N = 1000; % Number of samples
+N = 10000; % Number of samples
 U = rand(1,N); % Random input - u[0, 1]
 K_vec = [1, 2, 3, 4, 5]; % Vector of multipliers of base function
                          % Must be size [1 x K] because of dot product
@@ -69,8 +69,23 @@ sigma1 = D(1);
 G_hat = Q(:,1); % bo svd matlaba zwraca PDQ'
 
 % ratio
-(GammaV(2:end)./GammaV(1:end-1))'
-(G_hat(2:end)./G_hat(1:end-1))'
+(GammaV(2:end)./GammaV(1:end-1))';
+(G_hat(2:end)./G_hat(1:end-1))';
 
-K_vec(2:end)./K_vec(1:end-1)
-(K_hat(2:end)./K_hat(1:end-1))'
+K_vec(2:end)./K_vec(1:end-1);
+(K_hat(2:end)./K_hat(1:end-1))';
+
+%%%%% zad 3
+phi = zeros(N, length(K_vec))
+for i = 1:length(U)
+    for j = 1:length(K_vec)
+        if i-j+1 > 0
+            phi(i, j) = U(i-j+1);
+        else 
+            phi(i, j) = 0;
+        end
+    end
+end
+
+gamma = ((phi'*phi)^-1)*phi'*Yk'
+K_vec./gamma'
