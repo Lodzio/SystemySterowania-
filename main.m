@@ -88,4 +88,3 @@ for i = 1:length(U)
 end
 
 gamma = ((phi'*phi)^-1)*phi'*Yk'
-K_vec./gamma'

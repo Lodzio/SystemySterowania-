@@ -8,7 +8,7 @@ U = rand(1,N); % Random input - u[0, 1]
                          % Must be size [1 x K] because of dot product
                          % in nonlinear function
 
- K_vec = [5, 5, 5, 10]; % mniejszy przypadek zeby zobaczyc czy dziala
+ K_vec = [5, 2]; % mniejszy przypadek zeby zobaczyc czy dziala
 
 K = length(K_vec); % Number of Base functions
 
@@ -65,14 +65,12 @@ for i = 1:1:tau
     Gammy_est(i) = sum/(N-i+1);
 end
 %}
-for i = 1:1:tau
-    sum = 0;
-     sum = U_centr(1:N-i+1)*Y_centr(i:end)';
-
+for i = 1:tau
+    sum = U_centr(1:N-i+1)*Y_centr(i:end)';
     Gammy_est(i) = sum/(N-i+1);
 end
-
 Gammy_est ./ GammaV
+Gammy_est = GammaV;
 %Gammy_est = GammaV*-2.6;
 
 % Gammy_est / Gammy_est(1)
@@ -80,30 +78,30 @@ Gammy_est ./ GammaV
 
 % a = Qfun(U, Yk, Gammy_est', A)
 
-L_nom = -100;
-P_nom =  100;
+L_nom = -10;
+P_nom =  10;
+goldenRatio = (( sqrt(5)-1 ) / 2);
 Point = 1;
-h_nom = 40;
 A = zeros(1, K);
-aloop = ones(1, K);
+aloop = ones(1,K);
 fexit = 1;
-eps = 10^(-12);
-for i=1:1:K
+eps = 10^(-2);
+for ind=1:100
+    i = rem(ind, K)+1
     fexit = 1;
-    h = h_nom;
     L = L_nom;
     P = P_nom;
     loopiter = 0;
     while fexit
-       Point = (L+P)/2;
-       aloop(i) = Point + h;
+       h = (P-L)*goldenRatio;
+       aloop(i) = L + h;
        val_plus = Qfun(U, Yk, Gammy_est, aloop);
-       aloop(i) = Point - h;
+       aloop(i) = P - h;
        val_minus = Qfun(U, Yk, Gammy_est, aloop);
        if val_plus >= val_minus
-           P = Point + h;
+           P = L + h;
        else
-           L = Point - h; 
+           L = P - h; 
        end
        if (abs(P - L)) <= eps
            fexit = 0;
@@ -112,7 +110,6 @@ for i=1:1:K
            disp(str);
        end
        loopiter = loopiter +1;
-       h = h*0.5;
     end
     A(i) = aloop(i);
     
