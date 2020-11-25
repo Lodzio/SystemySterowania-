@@ -1,7 +1,14 @@
-function y = Qfun(U, Y, est_G, est_A)
+function y = Qfun(U, Y, est_G, est_A, hv)
+% function return vector of the output which is dot product of
+% hermite polynomians and vector k_vec.
+% u is the input vector of the function
+% k_vec is the vector of multipliers for base functions
+% The length of vector y is equal to length of vector u
+
+
 
 N = length(U); % Number of samples
-Wk = fnlin(U, est_A); % Calculating Wk Vector
+Wk = fnlin(U, est_A, hv); % Calculating Wk Vector
 
 S = length(est_G);                 % Amount of Gamma's
 GammaV = est_G;
