@@ -100,7 +100,7 @@ str = ['Gammy_est/ Gamma_est(1)'];
 disp(str);
 disp(c);
 
-
+goldenRatio = (( sqrt(5)-1 ) / 2);
 L_nom = -500;
 P_nom =  500;
 Point = 1;
@@ -111,20 +111,19 @@ fexit = 1;
 eps = 10^(-6);
 for i=1:1:K
     fexit = 1;
-    h = h_nom;
     L = L_nom;
     P = P_nom;
     loopiter = 1;
     while fexit
-       Point = (L+P)/2;
-       aloop(i) = Point + h;
+       h = (P-L)*goldenRatio;
+       aloop(i) = L + h;
        val_plus = Qfun(U, Yk, Gammy_est, aloop, Her_ver);
-       aloop(i) = Point - h;
+       aloop(i) = P - h;
        val_minus = Qfun(U, Yk, Gammy_est, aloop, Her_ver);
        if val_plus >= val_minus
-           P = Point + h;
+           P = L + h;
        else
-           L = Point - h; 
+           L = P - h; 
        end
        if (P - L) <= eps
            fexit = 0;
