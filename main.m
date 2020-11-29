@@ -75,6 +75,7 @@ K_hat = K_hat * D(1, 1);
 Krat = K_vec' ./ K_hat
 Krat = K_hat ./ K_vec'
 
+Qfun(U, Yk, G_hat, K_hat')
 % ratio
 % (GammaV(2:end)./GammaV(1:end-1))'
 % (G_hat(2:end)./G_hat(1:end-1))'
