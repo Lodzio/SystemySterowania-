@@ -45,7 +45,7 @@ Zk_mean = 0;
 Zk = Zk_variance.*randn(1,N) + Zk_mean;
 
 %Yk = Vk + Zk;
-Yk = Vk; % idealny przypadek bez zaklocenia
+Yk = Vk + Zk; % idealny przypadek bez zaklocenia
 
 % parametric identification
 Phi = [];
@@ -68,24 +68,16 @@ K_hat = P(:,1);
 sigma1 = D(1);
 G_hat = Q(:,1); % bo svd matlaba zwraca PDQ'
 
+Grat = GammaV./G_hat
+Grat = G_hat./GammaV
+
+K_hat = K_hat * D(1, 1);
+Krat = K_vec' ./ K_hat
+Krat = K_hat ./ K_vec'
+
 % ratio
-(GammaV(2:end)./GammaV(1:end-1))';
-(G_hat(2:end)./G_hat(1:end-1))';
-
-K_vec(2:end)./K_vec(1:end-1);
-(K_hat(2:end)./K_hat(1:end-1))';
-
-%%%%% zad 3
-phi = zeros(N, length(K_vec))
-for i = 1:length(U)
-    for j = 1:length(K_vec)
-        if i-j+1 > 0
-            phi(i, j) = U(i-j+1);
-        else 
-            phi(i, j) = 0;
-        end
-    end
-end
-
-gamma = ((phi'*phi)^-1)*phi'*Yk'
-K_vec./gamma'
+% (GammaV(2:end)./GammaV(1:end-1))'
+% (G_hat(2:end)./G_hat(1:end-1))'
+% 
+% K_vec(2:end)./K_vec(1:end-1)
+% (K_hat(2:end)./K_hat(1:end-1))'
