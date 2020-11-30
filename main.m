@@ -57,7 +57,7 @@ Zk = Zk_variance.*randn(1,N) + Zk_mean;
 
 %Yk = Vk + Zk;
 
-Yk = Vk; % idealny przypadek bez zaklocenia
+Yk = Vk + Zk; % idealny przypadek bez zaklocenia
 
 
 
