@@ -28,6 +28,11 @@ function min = getMin(fun, Lstart, Pstart)
 end
 
 
-function y = Q(u)
-    y=(u(1)-4)^2 + (u(2)-4)^2;
+function q = Q(u)
+    A=[0.5 0; 0 0.25];
+    B=[1 0; 0 1];
+    H=[0 1; 1 0];
+    K = (eye(size(A))-A*H)^-1*B;
+    y = K*u.';
+    q=(y(1)-4)^2 + (y(2)-4)^2;
 end
