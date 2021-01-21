@@ -1,0 +1,31 @@
+clear all;
+close all;
+
+u = [2, 2];
+min = getMin(@(x) Q(x), -10, 10)
+
+function min = getMin(fun, Lstart, Pstart)
+    stopValue = 1e-5;
+    E = 1;
+    a = Lstart;
+    b = Pstart;
+    while E > stopValue
+        center = (a+b)/2
+        min = center
+        P = center + E
+        L = center - E
+        Pvalue = fun(P);
+        Lvalue = fun(L);
+        if Pvalue > Lvalue
+            b = P;
+        else
+            a = L;
+        end
+        E = E/2;
+    end
+end
+
+
+function y = Q(x)
+    y=x^2;
+end
