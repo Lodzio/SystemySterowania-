@@ -3,8 +3,9 @@ close all;
 
 u = [2, 2];
 
-min1 = getMin(@(x) Q(x, 10), -10, 10)
-min2 = getMin(@(x) Q(min1, x), -10, 10)
+min1 = getMin(@(x) Q([x 10]), -10, 10);
+min2 = getMin(@(x) Q([min1 x]), -10, 10);
+Pmin = [min1, min2]
 function min = getMin(fun, Lstart, Pstart)
     stopValue = 1e-7;
     E = 1;
@@ -27,6 +28,6 @@ function min = getMin(fun, Lstart, Pstart)
 end
 
 
-function y = Q(u1, u2)
-    y=(u1^2) + (u2^2);
+function y = Q(u)
+    y=(u(1)-4)^2 + (u(2)-4)^2;
 end
