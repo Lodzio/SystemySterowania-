@@ -1,22 +1,26 @@
 clear all;
 close all;
+r = 1;
 
+u1min = getMin(@(u1) getQMinForU1(u1, r), -r, r);
+getMinU2Comparator = @(u2) comparator([u1min; u2]);
+u2min = getMin(getMinU2Comparator, -sqrt(r^2 - u1min^2), sqrt(r^2 - u1min^2));
 
+uMin = [u1min, u2min]
 % policzenie optymalnych u1, u2
 sterowanie = getMiniumum_u1u2(1)
 
 % suma kwadratow sterowan
-sterowanie*sterowanie'
+% sterowanie*sterowanie'
 
-% policzenie wyjœcia systemu dla takich sterowañ
-wyjscie = system(sterowanie')
+% policzenie wyjï¿½cia systemu dla takich sterowaï¿½
+% wyjscie = system(sterowanie')
 
 % funkcja celu wartosc dla policzonego sterowania
-Q_basic(wyjscie)
+% Q_basic(wyjscie)
 
 
 function q = Q_basic(y)
-    % u = [ u1, u2]
     q = (y(1) - 4).^2 + (y(2) - 4).^2;
 end
 
@@ -119,32 +123,35 @@ end
  
  
  
-function min = getMin(fun, Lstart, Pstart)
+function min = getMin(comparator, Lstart, Pstart)
     stopValue = 1e-7;
-    E = 1;
     a = Lstart;
     b = Pstart;
+    E = Pstart/2;
     while E > stopValue
         center = (a+b)/2;
-        min = center;
         P = center + E;
         L = center - E;
-        Pvalue = fun(P);
-        Lvalue = fun(L);
-        if Pvalue > Lvalue
+        Pvalue = comparator(P);
+        Lvalue = comparator(L);
+        if Pvalue >= Lvalue
             b = P;
         else
             a = L;
         end
         E = E/2;
     end
+    min = (a+b)/2;
 end
 
-function q = Q(u)
-    A=[0.5 0; 0 0.25];
-    B=[1 0; 0 1];
-    H=[0 1; 1 0];
-    K = (eye(size(A))-A*H)^-1*B;
-    y = K*u.';
-    q=(y(1)-4)^2 + (y(2)-4)^2;
+function q = comparator(u)
+    y = system(u);
+    q = Q_basic(y);
+end
+
+function q = getQMinForU1(u1, r)
+    Lstart = -sqrt(r^2 - u1^2);
+    Pstart =  sqrt(r^2 - u1^2);
+    u2 = getMin(@(u2) comparator([u1; u2]), Lstart, Pstart);
+    q = comparator([u1; u2]);
 end
