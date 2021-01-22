@@ -1,44 +1,69 @@
 clear all;
 close all;
+r = 1;
 
+u1min = getMin(@(u1) getQMinForU1(u1, r), -r, r);
+getMinU2Comparator = @(u2) comparator([u1min; u2]);
+u2min = getMin(getMinU2Comparator, -sqrt(r^2 - u1min^2), sqrt(r^2 - u1min^2));
 
+uMin = [u1min, u2min]
 % policzenie optymalnych u1, u2
 sterowanie = getMiniumum_u1u2(1)
 
-% suma kwadratow sterowan
-sterowanie*sterowanie'
+% rysowanie
+drawQfun([10 5], 51);
 
-% policzenie wyjœcia systemu dla takich sterowañ
-wyjscie = system(sterowanie')
+% suma kwadratow sterowan
+% sterowanie*sterowanie'
+
+% policzenie wyj?cia systemu dla takich sterowa?
+% wyjscie = system(sterowanie')
 
 % funkcja celu wartosc dla policzonego sterowania
-Q_basic(wyjscie)
+% Q_basic(wyjscie)
 
 
 function q = Q_basic(y)
-    % u = [ u1, u2]
     q = (y(1) - 4).^2 + (y(2) - 4).^2;
 end
 
-%{
-
-Rysowanie 3d do zrobienia
-
 function drawQfun(r, N)
-    % promien zmiennosci r1,r2 tzn r1 w [-r1, r1] etc.
-    figure();
+    % promien zmiennosci r1,r2   
     y1vec = linspace(-r(1), r(1), N);
-    y2vec = linspace(-r(2), r(2), N);
-    Y = [y1vec', y2vec'];
-    res =  Q_basic(Y);
-    surf ( y1vec, y2vec, res);
-    xlabel("x");
-    ylabel("t");
-    zlabel("T");
-    %title({"k = " + num2str(k) + " | T1 = " + num2str(T1) + " | T2 = " + num2str(T2)},'FontSize',20);  
+    y2vec = linspace(-r(1), r(1), N);
+    u1vec = linspace(-r(2), r(2), N);
+    u2vec = linspace(-r(2), r(2), N);
+    
+    ValueMY = zeros(N, N);
+    ValueMU = zeros(N, N);
+
+    for i=1:1:N
+       for j=1:1:N
+           ValueMY(i, j) = Q_basic([y1vec(i) y2vec(j)]);
+           ValueMU(i, j) = comparator([u1vec(i); u2vec(j)]);
+       end
+    end
+    figure();
+    surf ( y1vec, y2vec, ValueMY);
+    xlabel("y1");
+    ylabel("y2");
+    zlabel("Q(y1, y2)");
+    figure();
+    hold on;
+    surf ( u1vec, u2vec, ValueMU);
+    xlabel("u1");
+    ylabel("u2");
+    zlabel("Q(u1, u2)");
+    
+    R = 1;
+    H = 54;
+    [X,Y,Z] = cylinder(R);
+    Z = Z*H;
+    mesh(X,Y,Z,'FaceAlpha','0.5');
+    hold off;
+    grid on;
 
 end
-%}
 
 function y = system(u)
     % na podstawie [u1, u2] liczymy wyjscia sys [y1, y2]
@@ -119,32 +144,35 @@ end
  
  
  
-function min = getMin(fun, Lstart, Pstart)
+function min = getMin(comparator, Lstart, Pstart)
     stopValue = 1e-7;
-    E = 1;
     a = Lstart;
     b = Pstart;
+    E = Pstart/2;
     while E > stopValue
         center = (a+b)/2;
-        min = center;
         P = center + E;
         L = center - E;
-        Pvalue = fun(P);
-        Lvalue = fun(L);
-        if Pvalue > Lvalue
+        Pvalue = comparator(P);
+        Lvalue = comparator(L);
+        if Pvalue >= Lvalue
             b = P;
         else
             a = L;
         end
         E = E/2;
     end
+    min = (a+b)/2;
 end
 
-function q = Q(u)
-    A=[0.5 0; 0 0.25];
-    B=[1 0; 0 1];
-    H=[0 1; 1 0];
-    K = (eye(size(A))-A*H)^-1*B;
-    y = K*u.';
-    q=(y(1)-4)^2 + (y(2)-4)^2;
+function q = comparator(u)
+    y = system(u);
+    q = Q_basic(y);
+end
+
+function q = getQMinForU1(u1, r)
+    Lstart = -sqrt(r^2 - u1^2);
+    Pstart =  sqrt(r^2 - u1^2);
+    u2 = getMin(@(u2) comparator([u1; u2]), Lstart, Pstart);
+    q = comparator([u1; u2]);
 end
